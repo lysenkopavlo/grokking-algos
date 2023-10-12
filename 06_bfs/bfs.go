@@ -9,15 +9,14 @@ func personIsSeller(name string) bool {
 	return string(lastSymbol) == "m"
 }
 
-// search implements Breadth-First Search alike algorithm
-// and returns if there is a mango-seller in queue structure
+// search implements Breadth-First Search algorithm
+// and returns if there is a mango-seller in graph-alike structure
 func search(graph map[string][]string, name string) string {
 
-	var (
-		searchQueue []string // implement queue-alike structure and add first-level persons
-		searched    []string // add persons who has been searched already
-	)
-	searchQueue = append(searchQueue, graph[name]...) // add alice, bob, claire in first iteration
+	searchQueue := make([]string, 0)          // implement queue-alike structure and add first-level persons
+	searchedList := make(map[string]struct{}) // for adding persons, who has been searched already
+
+	searchQueue = append(searchQueue, graph[name]...) // add alice, bob, claire in the first iteration
 
 	// while there is someone searchQueue
 	for len(searchQueue) > 0 {
@@ -26,10 +25,8 @@ func search(graph map[string][]string, name string) string {
 		personSearched := false       // flag to exclude person from repeat
 
 		// check to see if this person has already been searched
-		for i := range searched {
-			if searched[i] == person {
-				personSearched = true
-			}
+		if _, ok := searchedList[person]; ok {
+			personSearched = true
 		}
 
 		// if it is first time search
@@ -38,8 +35,8 @@ func search(graph map[string][]string, name string) string {
 				return fmt.Sprintf("%s is a mango seller!\n", person)
 			}
 
-			searchQueue = append(searchQueue, graph[person]...) // append next person to search queue
-			searched = append(searched, person)                 // add have been just searched person in searched slice
+			searchQueue = append(searchQueue, graph[person]...) // append person's friends to search queue
+			searchedList[person] = struct{}{}                   // and update searched list
 		}
 	}
 
